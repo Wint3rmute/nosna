@@ -2,7 +2,7 @@ use crate::adsr;
 use crate::configuration;
 // use crate::adsr;
 use adsr::ADSR;
-use configuration::{OperatorConfiguration, VoiceState};
+use configuration::{OperatorConfiguration, Voice};
 
 pub struct Operator {
     phase: f32,
@@ -17,11 +17,16 @@ impl Operator {
         }
     }
 
+    pub fn reset(&mut self) {
+        self.adsr.reset();
+        self.phase = 0.0;
+    }
+
     pub fn tick(
         &mut self,
         modulation: f32,
         configuration: &OperatorConfiguration,
-        voice_state: &VoiceState,
+        voice_state: &Voice,
     ) -> f32 {
         self.phase += voice_state.phase_increment * configuration.frequency_multiplier;
 

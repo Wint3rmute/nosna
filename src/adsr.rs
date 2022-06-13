@@ -1,4 +1,4 @@
-use crate::configuration::{OperatorConfiguration, VoiceState};
+use crate::configuration::{OperatorConfiguration, Voice};
 use std::sync::Arc;
 
 pub enum Phase {
@@ -15,7 +15,7 @@ pub struct ADSR {
 }
 
 impl ADSR {
-    pub fn tick(&mut self, configuration: &OperatorConfiguration, voice_state: &VoiceState) -> f32 {
+    pub fn tick(&mut self, configuration: &OperatorConfiguration, voice_state: &Voice) -> f32 {
         if let Some(velocity) = voice_state.key_velocity {
             match self.phase {
                 Phase::ATTACK => {

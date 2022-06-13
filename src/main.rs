@@ -11,15 +11,17 @@ mod configuration;
 mod operator;
 
 // use adsr::ADSR;
-use configuration::{OperatorConfiguration, SynthConfiguration, VoiceState};
+use configuration::{OperatorConfiguration, SynthConfiguration, Voice};
 use operator::Operator;
 
 static SAMPLE_RATE: usize = 44100;
 
 type SharedSynthConfiguration = Arc<RwLock<SynthConfiguration>>;
+// type VoiceStates = Arc<RwLock<Vec<Voice>>>;
+type SharedOperator = Arc<RwLock<Operator>>;
 
 struct Synth {
-    operator: Operator,
+    operator: SharedOperator,
     configuration: SharedSynthConfiguration,
 }
 
@@ -32,9 +34,11 @@ impl Iterator for Synth {
         let ref operators_configuration = synth_configuration.operators_configuration;
         let ref voice_states = synth_configuration.voice_states;
 
-        result += self
-            .operator
-            .tick(0.0, &operators_configuration[0], &voice_states[0]);
+        result +=
+            self.operator
+                .write()
+                .unwrap()
+                .tick(0.0, &operators_configuration[0], &voice_states[0]);
         // for (sine, configuration) in self.sines.iter().zip(sine_configurations.iter()) {
         // configuration.
         // result += sine.tick(configuration)
@@ -67,31 +71,33 @@ fn main() {
     let sink = Sink::try_new(&stream_handle).unwrap();
 
     let configuration = Arc::new(RwLock::new(SynthConfiguration::new()));
+    let operator = Arc::new(RwLock::new(Operator::new()));
     let source = Synth {
-        operator: Operator::new(),
-        configuration: configuration,
+        operator: operator.clone(),
+        configuration: configuration.clone(),
     };
     // // Add a dummy source of the sake of the example.
     sink.append(source);
 
-    // loop {
-    //     let mut input = String::new();
-    //     println!("Enter number: ");
-    //     io::stdin()
-    //         .read_line(&mut input)
-    //         .expect("Not a valid string");
-    //     if let Ok(num) = input.trim().parse::<f32>() {
-    //         let ref mut configuration = configuration.write().unwrap(); //.operators[0].adsr.reset();
-    //         configuration.sine_configurations[0].set_frequency(num);
-    //         // configuration. // set_frequency(num);
-    //         // source.operators[0].adsr.set_attack(num);
-    //         if num == 0.0 {
-    //             break;
-    //         }
-    //     } else {
-    //         println!("Invalid number");
-    //     }
-    // }
+    loop {
+        let mut input = String::new();
+        println!("Enter number: ");
+        io::stdin()
+            .read_line(&mut input)
+            .expect("Not a valid string");
+        if let Ok(num) = input.trim().parse::<f32>() {
+            let ref mut configuration = configuration.write().unwrap(); //.operators[0].adsr.reset();
+                                                                        // configuration.sine_configurations[0].set_frequency(num);
+            operator.write().unwrap().reset();
+            // configuration. // set_frequency(num);
+            // source.operators[0].adsr.set_attack(num);
+            if num == 0.0 {
+                break;
+            }
+        } else {
+            println!("Invalid number");
+        }
+    }
 
     // The sound plays in a separate thread. This call will block the current thread until the sink
     // has finished playing all its queued sounds.

@@ -1,7 +1,7 @@
 pub struct SynthConfiguration {
     pub sample_rate: usize,
     pub operators_configuration: Vec<OperatorConfiguration>,
-    pub voice_states: Vec<VoiceState>,
+    pub voice_states: Vec<Voice>,
 }
 
 impl SynthConfiguration {
@@ -9,21 +9,21 @@ impl SynthConfiguration {
         SynthConfiguration {
             sample_rate: 44100,
             operators_configuration: vec![OperatorConfiguration::new()],
-            voice_states: vec![VoiceState::new()],
+            voice_states: vec![Voice::new()],
         }
     }
 }
 
-pub struct VoiceState {
+pub struct Voice {
     pub sample_rate: usize,
     pub base_frequency: f32,
     pub phase_increment: f32,
     pub key_velocity: Option<f32>,
 }
 
-impl VoiceState {
+impl Voice {
     pub fn new() -> Self {
-        let mut v = VoiceState {
+        let mut v = Self {
             sample_rate: 44100,
             base_frequency: 440.0,
             phase_increment: 0.0,
