@@ -3,15 +3,16 @@ use crate::voice::Voice;
 pub struct SynthConfiguration {
     pub sample_rate: usize,
     pub operators_configuration: Vec<OperatorConfiguration>,
-    pub voice_states: Vec<Voice>,
 }
 
 impl SynthConfiguration {
     pub fn new() -> Self {
         SynthConfiguration {
             sample_rate: 44100,
-            operators_configuration: vec![OperatorConfiguration::new()],
-            voice_states: vec![Voice::new()],
+            operators_configuration: vec![
+                OperatorConfiguration::new(1.0),
+                OperatorConfiguration::new(0.5),
+            ],
         }
     }
 }
@@ -30,7 +31,7 @@ pub struct OperatorConfiguration {
 }
 
 impl OperatorConfiguration {
-    pub fn new() -> Self {
+    pub fn new(frequency_multiplier: f32) -> Self {
         let mut configuration = OperatorConfiguration {
             sample_rate: 44100,
 
@@ -40,8 +41,8 @@ impl OperatorConfiguration {
             release: 0.0,
 
             strength: 0.0,
-            frequency_multiplier: 1.0,
             velocity_sensitivity: 1.0,
+            frequency_multiplier,
         };
 
         configuration.set_attack(0.01);

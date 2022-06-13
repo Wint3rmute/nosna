@@ -1,28 +1,25 @@
 use rodio::source::Source;
 use rodio::{OutputStream, Sink};
 use std::io;
-use std::sync::{Arc, RwLock, RwLockReadGuard};
+use std::sync::{Arc, RwLock};
 
 use std::time::Duration;
 
-// mod adsr;
 mod adsr;
 mod configuration;
 mod operator;
 mod voice;
 
-// use adsr::ADSR;
-use configuration::{OperatorConfiguration, SynthConfiguration};
-use operator::Operator;
+use configuration::SynthConfiguration;
+use voice::Voice;
 
 static SAMPLE_RATE: usize = 44100;
 
 type SharedSynthConfiguration = Arc<RwLock<SynthConfiguration>>;
-// type VoiceStates = Arc<RwLock<Vec<Voice>>>;
-type SharedOperator = Arc<RwLock<Operator>>;
+type SharedVoice = Arc<RwLock<Voice>>;
 
 struct Synth {
-    operator: SharedOperator,
+    voice: SharedVoice,
     configuration: SharedSynthConfiguration,
 }
 
@@ -31,19 +28,10 @@ impl Iterator for Synth {
     fn next(&mut self) -> Option<Self::Item> {
         let mut result = 0.0;
 
-        let ref synth_configuration = self.configuration.read().unwrap();
-        let ref operators_configuration = synth_configuration.operators_configuration;
-        let ref voice_states = synth_configuration.voice_states;
+        let synth_configuration = &self.configuration.read().unwrap();
+        let operators_configuration = &synth_configuration.operators_configuration;
 
-        result +=
-            self.operator
-                .write()
-                .unwrap()
-                .tick(0.0, &operators_configuration[0], &voice_states[0]);
-        // for (sine, configuration) in self.sines.iter().zip(sine_configurations.iter()) {
-        // configuration.
-        // result += sine.tick(configuration)
-        // }
+        result += self.voice.write().unwrap().tick(operators_configuration);
 
         Some(result)
     }
@@ -72,10 +60,12 @@ fn main() {
     let sink = Sink::try_new(&stream_handle).unwrap();
 
     let configuration = Arc::new(RwLock::new(SynthConfiguration::new()));
-    let operator = Arc::new(RwLock::new(Operator::new()));
+    // let operator = Arc::new(RwLock::new(Operator::new()));
+    let voice = Arc::new(RwLock::new(Voice::new()));
+    // let voice = Arc::new()
     let source = Synth {
-        operator: operator.clone(),
-        configuration: configuration.clone(),
+        voice: voice.clone(),
+        configuration: configuration,
     };
     // // Add a dummy source of the sake of the example.
     sink.append(source);
@@ -87,10 +77,7 @@ fn main() {
             .read_line(&mut input)
             .expect("Not a valid string");
         if let Ok(num) = input.trim().parse::<f32>() {
-            let ref mut configuration = configuration.write().unwrap(); //.operators[0].adsr.reset();
-                                                                        // configuration.sine_configurations[0].set_frequency(num);
-            operator.write().unwrap().reset();
-            configuration.voice_states[0].base_frequency = num;
+            voice.write().unwrap().note_on(num);
             // operator.write().unwrap().base_frequency = num;
             // configuration.operators_configuration[0].base_frequency = num;
             // configuration. // set_frequency(num);
