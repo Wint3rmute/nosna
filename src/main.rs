@@ -9,9 +9,10 @@ use std::time::Duration;
 mod adsr;
 mod configuration;
 mod operator;
+mod voice;
 
 // use adsr::ADSR;
-use configuration::{OperatorConfiguration, SynthConfiguration, Voice};
+use configuration::{OperatorConfiguration, SynthConfiguration};
 use operator::Operator;
 
 static SAMPLE_RATE: usize = 44100;
@@ -89,6 +90,9 @@ fn main() {
             let ref mut configuration = configuration.write().unwrap(); //.operators[0].adsr.reset();
                                                                         // configuration.sine_configurations[0].set_frequency(num);
             operator.write().unwrap().reset();
+            configuration.voice_states[0].base_frequency = num;
+            // operator.write().unwrap().base_frequency = num;
+            // configuration.operators_configuration[0].base_frequency = num;
             // configuration. // set_frequency(num);
             // source.operators[0].adsr.set_attack(num);
             if num == 0.0 {

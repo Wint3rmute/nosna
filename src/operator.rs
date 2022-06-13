@@ -1,8 +1,9 @@
 use crate::adsr;
 use crate::configuration;
 // use crate::adsr;
+use crate::voice::Voice;
 use adsr::ADSR;
-use configuration::{OperatorConfiguration, Voice};
+use configuration::OperatorConfiguration;
 
 pub struct Operator {
     phase: f32,
