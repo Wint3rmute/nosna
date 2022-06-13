@@ -1,3 +1,4 @@
+use eframe::egui;
 use rodio::source::Source;
 use rodio::{OutputStream, Sink};
 use std::io;
@@ -23,6 +24,28 @@ type SharedVoice = Arc<RwLock<Voice>>;
 struct Synth {
     voice: SharedVoice,
     configuration: SharedSynthConfiguration,
+}
+
+struct SynthUI {
+    voice: SharedVoice,
+}
+
+impl eframe::App for SynthUI {
+    fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+        egui::CentralPanel::default().show(ctx, |ui| {
+            ui.heading("My egui Application");
+            ui.horizontal(|ui| {
+                ui.label("Your name: ");
+                // ui.text_edit_singleline(&mut self.name);
+            });
+            // ui.add(egui::Slider::new(&mut self.age, 0..=120).text("age"));
+            if ui.button("Click each year").clicked() {
+                // self.age += 1;
+                self.voice.write().unwrap().note_on(440.0);
+            }
+            // ui.label(format!("Hello '{}', age {}", self.name, self.age));
+        });
+    }
 }
 
 impl Iterator for Synth {
@@ -65,10 +88,10 @@ fn main() {
 
     let configuration = Arc::new(RwLock::new(SynthConfiguration::new()));
     // let operator = Arc::new(RwLock::new(Operator::new()));
-    let voice = Arc::new(RwLock::new(Voice::new()));
+    let voice_original = Arc::new(RwLock::new(Voice::new()));
     // let voice = Arc::new()
     let source = Synth {
-        voice: voice.clone(),
+        voice: voice_original.clone(),
         configuration: configuration,
     };
     // // Add a dummy source of the sake of the example.
@@ -76,6 +99,7 @@ fn main() {
 
     let (in_port, midi_in) = midi_input::midi_test().unwrap();
 
+    let voice = voice_original.clone();
     let _conn_in = midi_in.connect(
         &in_port,
         "midir-read-input",
@@ -115,6 +139,16 @@ fn main() {
     //         println!("Invalid number");
     //     }
     // }
+    let options = eframe::NativeOptions::default();
+    // eframe::run_native(
+    //     "My egui App",
+    //     options,
+    //     Box::new(move |_cc| {
+    //         Box::new(SynthUI {
+    //             voice: voice_original.clone(),
+    //         })
+    //     }),
+    // );
 
     // The sound plays in a separate thread. This call will block the current thread until the sink
     // has finished playing all its queued sounds.
