@@ -77,10 +77,18 @@ fn main() {
     let (in_port, midi_in) = midi_input::midi_test().unwrap();
 
     let _conn_in = midi_in.connect(
-        midi_in,
+        &in_port,
         "midir-read-input",
         move |stamp, message, _| {
+            if message[2] == 0 {
+                return;
+            }
             println!("{}: {:?} (len = {})", stamp, message, message.len());
+
+            let frequency = 440.0 * (2.0 as f32).powf((message[1] as f32 - 69.0) as f32 / 12.0);
+            println!("{}", frequency);
+            voice.write().unwrap().note_on(frequency);
+            // voice.write().unwrap().note_on(num);
             // input_events_channel.send(message.clone());
             // callback(message);
         },
@@ -88,25 +96,25 @@ fn main() {
         (),
     );
 
-    loop {
-        let mut input = String::new();
-        println!("Enter number: ");
-        io::stdin()
-            .read_line(&mut input)
-            .expect("Not a valid string");
-        if let Ok(num) = input.trim().parse::<f32>() {
-            voice.write().unwrap().note_on(num);
-            // operator.write().unwrap().base_frequency = num;
-            // configuration.operators_configuration[0].base_frequency = num;
-            // configuration. // set_frequency(num);
-            // source.operators[0].adsr.set_attack(num);
-            if num == 0.0 {
-                break;
-            }
-        } else {
-            println!("Invalid number");
-        }
-    }
+    // loop {
+    //     let mut input = String::new();
+    //     println!("Enter number: ");
+    //     io::stdin()
+    //         .read_line(&mut input)
+    //         .expect("Not a valid string");
+    //     if let Ok(num) = input.trim().parse::<f32>() {
+    //         // voice.write().unwrap().note_on(num);
+    //         // operator.write().unwrap().base_frequency = num;
+    //         // configuration.operators_configuration[0].base_frequency = num;
+    //         // configuration. // set_frequency(num);
+    //         // source.operators[0].adsr.set_attack(num);
+    //         if num == 0.0 {
+    //             break;
+    //         }
+    //     } else {
+    //         println!("Invalid number");
+    //     }
+    // }
 
     // The sound plays in a separate thread. This call will block the current thread until the sink
     // has finished playing all its queued sounds.

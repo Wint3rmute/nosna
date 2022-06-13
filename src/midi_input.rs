@@ -38,7 +38,7 @@ pub fn midi_test() -> Result<(MidiInputPort, MidiInput), Box<dyn Error>> {
     println!("\nOpening connection");
     let in_port_name = midi_in.port_name(in_port)?;
     // Ok(midi_in, in_port)
-    Ok((*in_port, midi_in))
+    Ok((in_port.clone(), midi_in))
 
     // _conn_in needs to be a named parameter, because it needs to be kept alive until the end of the scope
     // let _conn_in = midi_in.connect(
