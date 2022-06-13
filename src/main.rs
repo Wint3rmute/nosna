@@ -1,12 +1,14 @@
 use rodio::source::Source;
 use rodio::{OutputStream, Sink};
 use std::io;
+use std::sync::mpsc::channel;
 use std::sync::{Arc, RwLock};
 
 use std::time::Duration;
 
 mod adsr;
 mod configuration;
+mod midi_input;
 mod operator;
 mod voice;
 
@@ -56,6 +58,8 @@ impl Source for Synth {
 }
 
 fn main() {
+    // let (sender, receiver) = channel();
+
     let (_stream, stream_handle) = OutputStream::try_default().unwrap();
     let sink = Sink::try_new(&stream_handle).unwrap();
 
@@ -69,6 +73,20 @@ fn main() {
     };
     // // Add a dummy source of the sake of the example.
     sink.append(source);
+
+    let (in_port, midi_in) = midi_input::midi_test().unwrap();
+
+    let _conn_in = midi_in.connect(
+        midi_in,
+        "midir-read-input",
+        move |stamp, message, _| {
+            println!("{}: {:?} (len = {})", stamp, message, message.len());
+            // input_events_channel.send(message.clone());
+            // callback(message);
+        },
+        // callback,
+        (),
+    );
 
     loop {
         let mut input = String::new();

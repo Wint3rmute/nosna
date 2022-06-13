@@ -1,5 +1,3 @@
-use crate::voice::Voice;
-
 pub struct SynthConfiguration {
     pub sample_rate: usize,
     pub operators_configuration: Vec<OperatorConfiguration>,
