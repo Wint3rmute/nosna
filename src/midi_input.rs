@@ -1,7 +1,6 @@
 use midir::{Ignore, MidiInput, MidiInputPort};
 use std::error::Error;
 use std::io::{stdin, stdout, Write};
-use std::sync::mpsc::Sender;
 
 pub fn midi_test() -> Result<(MidiInputPort, MidiInput), Box<dyn Error>> {
     let mut input = String::new();

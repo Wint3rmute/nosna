@@ -1,8 +1,6 @@
-use eframe::egui;
 use rodio::source::Source;
 use rodio::{OutputStream, Sink};
 use std::io;
-use std::sync::mpsc::channel;
 use std::sync::{Arc, RwLock};
 
 use std::time::Duration;
@@ -11,6 +9,7 @@ mod adsr;
 mod configuration;
 mod midi_input;
 mod operator;
+mod oscilloscope;
 mod voice;
 
 use configuration::SynthConfiguration;
@@ -19,35 +18,46 @@ use voice::Voice;
 static SAMPLE_RATE: usize = 44100;
 
 type SharedSynthConfiguration = Arc<RwLock<SynthConfiguration>>;
-type SharedVoice = Arc<RwLock<Voice>>;
+type SharedVoiceManager = Arc<RwLock<VoiceManager>>;
 
-struct Synth {
-    voice: SharedVoice,
-    configuration: SharedSynthConfiguration,
+pub struct VoiceManager {
+    voices: Vec<Voice>,
+    voice_index: usize,
 }
 
-struct SynthUI {
-    voice: SharedVoice,
-}
+impl VoiceManager {
+    fn new() -> Self {
+        Self {
+            voices: std::iter::repeat_with(|| Voice::new()).take(4).collect(),
+            voice_index: 0,
+        }
+    }
 
-impl eframe::App for SynthUI {
-    fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-        egui::CentralPanel::default().show(ctx, |ui| {
-            ui.heading("My egui Application");
-            ui.horizontal(|ui| {
-                ui.label("Your name: ");
-                // ui.text_edit_singleline(&mut self.name);
-            });
-            // ui.add(egui::Slider::new(&mut self.age, 0..=120).text("age"));
-            if ui.button("Click each year").clicked() {
-                // self.age += 1;
-                self.voice.write().unwrap().note_on(440.0);
-            }
-            // ui.label(format!("Hello '{}', age {}", self.name, self.age));
-        });
+    fn note_on(&mut self, note: f32) {
+        self.voices[self.voice_index].note_on(note);
+        self.voice_index += 1;
+
+        if self.voice_index >= self.voices.len() {
+            self.voice_index = 0;
+        }
+    }
+
+    fn tick(&mut self, configuration: &SynthConfiguration) -> f32 {
+        self.voices
+            .iter_mut()
+            .map(|voice| voice.tick(configuration.operators_configuration.as_slice()))
+            .sum()
     }
 }
 
+struct Synth {
+    voice_manager: SharedVoiceManager,
+    configuration: SharedSynthConfiguration,
+    samples: Samples,
+    sample_index: usize,
+}
+
+type Samples = Arc<RwLock<Vec<f32>>>;
 impl Iterator for Synth {
     type Item = f32;
     fn next(&mut self) -> Option<Self::Item> {
@@ -56,7 +66,18 @@ impl Iterator for Synth {
         let synth_configuration = &self.configuration.read().unwrap();
         let operators_configuration = &synth_configuration.operators_configuration;
 
-        result += self.voice.write().unwrap().tick(operators_configuration);
+        result += self
+            .voice_manager
+            .write()
+            .unwrap()
+            .tick(&synth_configuration);
+
+        let mut samples = self.samples.write().unwrap();
+        samples[self.sample_index] = result;
+        self.sample_index += 1;
+        if self.sample_index >= samples.len() {
+            self.sample_index = 0;
+        }
 
         Some(result)
     }
@@ -82,24 +103,29 @@ impl Source for Synth {
 
 fn main() {
     // let (sender, receiver) = channel();
+    let a = 5;
 
     let (_stream, stream_handle) = OutputStream::try_default().unwrap();
     let sink = Sink::try_new(&stream_handle).unwrap();
+    let samples: Samples = Arc::new(RwLock::new(vec![0.0 as f32; 1024]));
 
     let configuration = Arc::new(RwLock::new(SynthConfiguration::new()));
     // let operator = Arc::new(RwLock::new(Operator::new()));
-    let voice_original = Arc::new(RwLock::new(Voice::new()));
+    // let voice_original = Arc::new(RwLock::new(Voice::new()));
+    let voice_manager = Arc::new(RwLock::new(VoiceManager::new()));
     // let voice = Arc::new()
     let source = Synth {
-        voice: voice_original.clone(),
-        configuration: configuration,
+        voice_manager: voice_manager.clone(),
+        configuration: configuration.clone(),
+        samples: samples.clone(),
+        sample_index: 0,
     };
     // // Add a dummy source of the sake of the example.
     sink.append(source);
 
     let (in_port, midi_in) = midi_input::midi_test().unwrap();
 
-    let voice = voice_original.clone();
+    let vm = voice_manager.clone();
     let _conn_in = midi_in.connect(
         &in_port,
         "midir-read-input",
@@ -111,7 +137,7 @@ fn main() {
 
             let frequency = 440.0 * (2.0 as f32).powf((message[1] as f32 - 69.0) as f32 / 12.0);
             println!("{}", frequency);
-            voice.write().unwrap().note_on(frequency);
+            voice_manager.write().unwrap().note_on(frequency);
             // voice.write().unwrap().note_on(num);
             // input_events_channel.send(message.clone());
             // callback(message);
@@ -120,35 +146,30 @@ fn main() {
         (),
     );
 
-    // loop {
-    //     let mut input = String::new();
-    //     println!("Enter number: ");
-    //     io::stdin()
-    //         .read_line(&mut input)
-    //         .expect("Not a valid string");
-    //     if let Ok(num) = input.trim().parse::<f32>() {
-    //         // voice.write().unwrap().note_on(num);
-    //         // operator.write().unwrap().base_frequency = num;
-    //         // configuration.operators_configuration[0].base_frequency = num;
-    //         // configuration. // set_frequency(num);
-    //         // source.operators[0].adsr.set_attack(num);
-    //         if num == 0.0 {
-    //             break;
-    //         }
-    //     } else {
-    //         println!("Invalid number");
-    //     }
-    // }
-    let options = eframe::NativeOptions::default();
-    // eframe::run_native(
-    //     "My egui App",
-    //     options,
-    //     Box::new(move |_cc| {
-    //         Box::new(SynthUI {
-    //             voice: voice_original.clone(),
-    //         })
-    //     }),
-    // );
+    let voice_manager = vm;
+
+    oscilloscope::run_synth_ui(voice_manager.clone(), samples.clone());
+
+    loop {
+        let mut input = String::new();
+        println!("Enter number: ");
+        io::stdin()
+            .read_line(&mut input)
+            .expect("Not a valid string");
+        if let Ok(num) = input.trim().parse::<f32>() {
+            voice_manager.write().unwrap().note_on(num);
+            // voice.write().unwrap().note_on(num);
+            // operator.write().unwrap().base_frequency = num;
+            // configuration.operators_configuration[0].base_frequency = num;
+            // configuration. // set_frequency(num);
+            // source.operators[0].adsr.set_attack(num);
+            if num < 0.0 {
+                // voice_manager.write().unwrap().no
+            }
+        } else {
+            println!("Invalid number");
+        }
+    }
 
     // The sound plays in a separate thread. This call will block the current thread until the sink
     // has finished playing all its queued sounds.

@@ -1,6 +1,4 @@
 use crate::configuration::OperatorConfiguration;
-use crate::voice::Voice;
-use std::sync::Arc;
 
 pub enum Phase {
     Attack,
