@@ -10,7 +10,6 @@ mkShell {
     libXi
     pkg-config
   ] ++ [
-    python3
     libGL
     libGLU
     alsa-lib
