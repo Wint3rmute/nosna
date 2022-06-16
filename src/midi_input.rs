@@ -3,7 +3,7 @@ use std::error::Error;
 use std::io::{stdin, stdout, Write};
 
 pub fn midi_test() -> Result<(MidiInputPort, MidiInput), Box<dyn Error>> {
-    let mut input = String::new();
+    let input = String::new();
 
     let mut midi_in = MidiInput::new("midir reading input")?;
     midi_in.ignore(Ignore::None);

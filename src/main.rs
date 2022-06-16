@@ -29,7 +29,7 @@ pub struct VoiceManager {
 impl VoiceManager {
     fn new() -> Self {
         Self {
-            voices: std::iter::repeat_with(|| Voice::new()).take(4).collect(),
+            voices: std::iter::repeat_with(Voice::new).take(4).collect(),
             voice_index: 0,
         }
     }
@@ -65,13 +65,12 @@ impl Iterator for Synth {
         let mut result = 0.0;
 
         let synth_configuration = &self.configuration.read().unwrap();
-        let operators_configuration = &synth_configuration.operators_configuration;
 
         result += self
             .voice_manager
             .write()
             .unwrap()
-            .tick(&synth_configuration);
+            .tick(synth_configuration);
 
         let mut samples = self.samples.write().unwrap();
         samples[self.sample_index] = result;
@@ -103,12 +102,9 @@ impl Source for Synth {
 }
 
 fn main() {
-    // let (sender, receiver) = channel();
-    let a = 5;
-
     let (_stream, stream_handle) = OutputStream::try_default().unwrap();
     let sink = Sink::try_new(&stream_handle).unwrap();
-    let samples: Samples = Arc::new(RwLock::new(vec![0.0 as f32; 1024]));
+    let samples: Samples = Arc::new(RwLock::new(vec![0.0_f32; 1024]));
 
     let configuration = Arc::new(RwLock::new(SynthConfiguration::new()));
     // let operator = Arc::new(RwLock::new(Operator::new()));
@@ -136,7 +132,7 @@ fn main() {
             }
             println!("{}: {:?} (len = {})", stamp, message, message.len());
 
-            let frequency = 440.0 * (2.0 as f32).powf((message[1] as f32 - 69.0) as f32 / 12.0);
+            let frequency = 440.0 * (2.0_f32).powf((message[1] as f32 - 69.0) as f32 / 12.0);
             println!("{}", frequency);
             voice_manager.write().unwrap().note_on(frequency);
             // voice.write().unwrap().note_on(num);
