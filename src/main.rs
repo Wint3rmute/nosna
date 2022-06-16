@@ -1,3 +1,4 @@
+use midly::{live::LiveEvent, MidiMessage};
 use rodio::source::Source;
 use rodio::{OutputStream, Sink};
 use std::io;
@@ -107,17 +108,13 @@ fn main() {
     let samples: Samples = Arc::new(RwLock::new(vec![0.0_f32; 1024]));
 
     let configuration = Arc::new(RwLock::new(SynthConfiguration::new()));
-    // let operator = Arc::new(RwLock::new(Operator::new()));
-    // let voice_original = Arc::new(RwLock::new(Voice::new()));
     let voice_manager = Arc::new(RwLock::new(VoiceManager::new()));
-    // let voice = Arc::new()
     let source = Synth {
         voice_manager: voice_manager.clone(),
         configuration: configuration.clone(),
         samples: samples.clone(),
         sample_index: 0,
     };
-    // // Add a dummy source of the sake of the example.
     sink.append(source);
 
     let (in_port, midi_in) = midi_input::midi_test().unwrap();
@@ -127,17 +124,28 @@ fn main() {
         &in_port,
         "midir-read-input",
         move |stamp, message, _| {
+            println!("{}: {:?} (len = {})", stamp, message, message.len());
+
+            let event = LiveEvent::parse(message).unwrap();
+            match event {
+                LiveEvent::Midi { channel, message } => match message {
+                    MidiMessage::NoteOn { key, vel } => {
+                        println!("hit note {}, {} on channel {}", key, vel, channel);
+                    }
+                    _ => {}
+                },
+                _ => {
+                    println!("No idea what this is")
+                }
+            }
+
             if message[2] == 0 {
                 return;
             }
-            println!("{}: {:?} (len = {})", stamp, message, message.len());
 
             let frequency = 440.0 * (2.0_f32).powf((message[1] as f32 - 69.0) as f32 / 12.0);
             println!("{}", frequency);
             voice_manager.write().unwrap().note_on(frequency);
-            // voice.write().unwrap().note_on(num);
-            // input_events_channel.send(message.clone());
-            // callback(message);
         },
         // callback,
         (),
@@ -166,6 +174,7 @@ fn main() {
             }
         } else {
             println!("Invalid number");
+            break;
         }
     }
 

@@ -26,7 +26,6 @@ impl Adsr {
                     if self.state > 1.0 {
                         self.state = 1.0;
                         self.phase = Phase::Decay;
-                        println!("Attack DONE");
                     }
                 }
                 Phase::Decay => {
@@ -50,7 +49,6 @@ impl Adsr {
                     if self.state < 0.0 {
                         self.state = 0.0;
                         self.phase = Phase::Finished;
-                        println!("Adsr:Finished");
                     }
                 }
                 _ => {
