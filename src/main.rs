@@ -9,6 +9,7 @@ mod adsr;
 mod configuration;
 mod midi_input;
 mod operator;
+#[cfg(feature = "gui")]
 mod oscilloscope;
 mod voice;
 
@@ -148,6 +149,7 @@ fn main() {
 
     let voice_manager = vm;
 
+    #[cfg(feature = "gui")]
     oscilloscope::run_synth_ui(voice_manager.clone(), samples.clone());
 
     loop {

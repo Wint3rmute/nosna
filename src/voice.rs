@@ -15,7 +15,7 @@ impl Voice {
             base_frequency: 440.0,
             phase_increment: 0.0,
             key_velocity: None,
-            operators: vec![Operator::new(), Operator::new()],
+            operators: vec![Operator::new()],
         };
         v.set_frequency(440.0);
 
