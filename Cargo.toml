@@ -1,5 +1,5 @@
 [package]
-name = "synth"
+name = "nosna"
 version = "0.1.0"
 edition = "2021"
 
@@ -7,9 +7,12 @@ edition = "2021"
 gui = [ "eframe" ]
 
 [dependencies]
-rodio = "0.15.0"
 midir = "0.8.0"
 eframe = { version = "0.18.0", optional=true }
+
+[dependencies.rodio]
+version = "0.15.0"
+default-features=false
 
 [dependencies.midly]
 version = "0.5.2"
