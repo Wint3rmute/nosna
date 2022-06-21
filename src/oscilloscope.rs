@@ -1,6 +1,6 @@
 use crate::{Samples, SharedVoiceManager};
 use eframe::egui;
-use egui::plot::{Line, Plot, Value, Values};
+use egui::plot::{Line, Plot, Values};
 
 pub fn run_synth_ui(voice_manager: SharedVoiceManager, samples: Samples) {
     let options = eframe::NativeOptions::default();
