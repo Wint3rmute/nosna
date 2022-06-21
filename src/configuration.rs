@@ -9,7 +9,7 @@ impl SynthConfiguration {
             sample_rate: 44100,
             operators_configuration: vec![
                 OperatorConfiguration::new(1.0),
-                OperatorConfiguration::new(0.5),
+                // OperatorConfiguration::new(0.5),
             ],
         }
     }
@@ -43,10 +43,10 @@ impl OperatorConfiguration {
             frequency_multiplier,
         };
 
-        configuration.set_attack(0.5);
+        configuration.set_attack(0.01);
         configuration.set_decay(0.5);
-        configuration.set_sustain(0.0);
-        configuration.set_release(1.0);
+        configuration.set_sustain(0.9);
+        configuration.set_release(0.1);
 
         configuration
     }

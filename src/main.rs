@@ -44,6 +44,14 @@ impl VoiceManager {
         }
     }
 
+    fn note_off(&mut self, note: f32) {
+        for voice in self.voices.iter_mut() {
+            if voice.base_frequency == note {
+                voice.note_off()
+            }
+        }
+    }
+
     fn tick(&mut self, configuration: &SynthConfiguration) -> f32 {
         self.voices
             .iter_mut()
@@ -125,12 +133,24 @@ fn main() {
         "midir-read-input",
         move |stamp, message, _| {
             println!("{}: {:?} (len = {})", stamp, message, message.len());
+            let frequency = 440.0 * (2.0_f32).powf((message[1] as f32 - 69.0) as f32 / 12.0);
 
             let event = LiveEvent::parse(message).unwrap();
             match event {
                 LiveEvent::Midi { channel, message } => match message {
                     MidiMessage::NoteOn { key, vel } => {
                         println!("hit note {}, {} on channel {}", key, vel, channel);
+
+                        if vel == 0 {
+                            voice_manager.write().unwrap().note_off(frequency);
+                        } else {
+                            voice_manager.write().unwrap().note_on(frequency);
+                        }
+                    }
+                    MidiMessage::NoteOff { key, vel } => {
+                        println!("note off {}, {} on channel {}", key, vel, channel);
+
+                        voice_manager.write().unwrap().note_off(frequency);
                     }
                     _ => {}
                 },
@@ -142,10 +162,6 @@ fn main() {
             if message[2] == 0 {
                 return;
             }
-
-            let frequency = 440.0 * (2.0_f32).powf((message[1] as f32 - 69.0) as f32 / 12.0);
-            println!("{}", frequency);
-            voice_manager.write().unwrap().note_on(frequency);
         },
         // callback,
         (),
