@@ -1,0 +1,20 @@
+:root {
+  --content_foreground: rgba(255, 255, 255, 0.85);
+  --headers_foreground: rgba(255, 255, 255, 0.84);
+  --background: #263238;
+  --background-light: #37474F;
+  --accent: #82AAFF;
+  --header-height: 2vh;
+  --r-link-color: var(--accent);
+  --font: var(-apple-system,BlinkMacSystemFont,segoe ui,Roboto,Oxygen,Ubuntu,Cantarell,open sans,helvetica neue,sans-serif);
+  --r-heading-font: var(-apple-system,BlinkMacSystemFont,segoe ui,Roboto,Oxygen,Ubuntu,Cantarell,open sans,helvetica neue,sans-serif) !important;
+  --r-main-font: var(-apple-system,BlinkMacSystemFont,segoe ui,Roboto,Oxygen,Ubuntu,Cantarell,open sans,helvetica neue,sans-serif) !important;
+  --r-main-color: var(--content_foreground) !important;
+
+  --r-heading-text-transform: none;
+}
+
+body {
+	background-color: var(--background) !important;
+}
+
