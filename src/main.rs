@@ -30,13 +30,13 @@ pub struct VoiceManager {
 impl VoiceManager {
     fn new() -> Self {
         Self {
-            voices: std::iter::repeat_with(Voice::new).take(4).collect(),
+            voices: std::iter::repeat_with(Voice::new).take(8).collect(),
             voice_index: 0,
         }
     }
 
-    fn note_on(&mut self, note: f32) {
-        self.voices[self.voice_index].note_on(note);
+    fn note_on(&mut self, note: f32, velocity: f32) {
+        self.voices[self.voice_index].note_on(note, velocity);
         self.voice_index += 1;
 
         if self.voice_index >= self.voices.len() {
@@ -55,7 +55,7 @@ impl VoiceManager {
     fn tick(&mut self, configuration: &SynthConfiguration) -> f32 {
         self.voices
             .iter_mut()
-            .map(|voice| voice.tick(configuration.operators_configuration.as_slice()))
+            .map(|voice| voice.tick(configuration.operators_configuration.as_slice()) * 0.3)
             .sum()
     }
 }
@@ -144,7 +144,8 @@ fn main() {
                         if vel == 0 {
                             voice_manager.write().unwrap().note_off(frequency);
                         } else {
-                            voice_manager.write().unwrap().note_on(frequency);
+                            let velocity: f32 = vel.as_int() as f32 / 127.0;
+                            voice_manager.write().unwrap().note_on(frequency, velocity);
                         }
                     }
                     MidiMessage::NoteOff { key, vel } => {
@@ -179,7 +180,7 @@ fn main() {
             .read_line(&mut input)
             .expect("Not a valid string");
         if let Ok(num) = input.trim().parse::<f32>() {
-            voice_manager.write().unwrap().note_on(num);
+            voice_manager.write().unwrap().note_on(num, 0.8);
             // voice.write().unwrap().note_on(num);
             // operator.write().unwrap().base_frequency = num;
             // configuration.operators_configuration[0].base_frequency = num;

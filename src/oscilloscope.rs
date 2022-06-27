@@ -34,7 +34,7 @@ impl eframe::App for SynthUI {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
             if ui.button("Make some sound").clicked() {
-                self.voice_manager.write().unwrap().note_on(440.0);
+                self.voice_manager.write().unwrap().note_on(440.0, 0.8);
             }
             let line = Line::new(Values::from_ys_f32(&self.samples.read().unwrap())); //.width(2.0);
             ctx.request_repaint();

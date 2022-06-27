@@ -14,12 +14,8 @@ pub struct Adsr {
 }
 
 impl Adsr {
-    pub fn tick(
-        &mut self,
-        configuration: &OperatorConfiguration,
-        key_velocity: Option<f32>,
-    ) -> f32 {
-        if let Some(velocity) = key_velocity {
+    pub fn tick(&mut self, configuration: &OperatorConfiguration, note_on: bool) -> f32 {
+        if note_on {
             match self.phase {
                 Phase::Attack => {
                     self.state += configuration.attack;

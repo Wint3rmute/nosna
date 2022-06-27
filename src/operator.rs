@@ -27,7 +27,8 @@ impl Operator {
         modulation: f32,
         configuration: &OperatorConfiguration,
         phase_increment: f32,
-        key_velocity: Option<f32>,
+        key_velocity: f32,
+        note_on: bool,
     ) -> f32 {
         self.phase += phase_increment * configuration.frequency_multiplier;
 
@@ -35,6 +36,6 @@ impl Operator {
             self.phase -= std::f32::consts::PI * 2.0;
         }
 
-        (self.phase + modulation).sin() * self.adsr.tick(configuration, key_velocity)
+        (self.phase + modulation).sin() * self.adsr.tick(configuration, note_on) * key_velocity
     }
 }
