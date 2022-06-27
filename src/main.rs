@@ -113,7 +113,7 @@ impl Source for Synth {
 fn main() {
     let (_stream, stream_handle) = OutputStream::try_default().unwrap();
     let sink = Sink::try_new(&stream_handle).unwrap();
-    let samples: Samples = Arc::new(RwLock::new(vec![0.0_f32; 1024]));
+    let samples: Samples = Arc::new(RwLock::new(vec![0.0_f32; 1000]));
 
     let configuration = Arc::new(RwLock::new(SynthConfiguration::new()));
     let voice_manager = Arc::new(RwLock::new(VoiceManager::new()));
