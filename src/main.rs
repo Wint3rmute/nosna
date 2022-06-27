@@ -127,6 +127,7 @@ fn main() {
 
     let (in_port, midi_in) = midi_input::midi_test().unwrap();
 
+    configuration.write().unwrap().operators_configuration[0].attack = 0.5;
     let vm = voice_manager.clone();
     let _conn_in = midi_in.connect(
         &in_port,
@@ -158,6 +159,15 @@ fn main() {
                             "control change {}, {} on channel {}",
                             controller, value, channel
                         );
+
+                        match controller.as_int() {
+                            73 | 1 => {
+                                configuration.write().unwrap().operators_configuration[0].attack =
+                                    value.as_int() as f32 / 127.0;
+                            }
+                            75 => {}
+                            _ => {}
+                        };
                     }
                     _ => {}
                 },
