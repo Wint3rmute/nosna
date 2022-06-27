@@ -158,6 +158,15 @@ fn main() {
                             "control change {}, {} on channel {}",
                             controller, value, channel
                         );
+
+                        match controller.as_int() {
+                            73 | 1 => {
+                                configuration.write().unwrap().operators_configuration[0].attack =
+                                    value.as_int() as f32 / 127.0;
+                            }
+                            75 => {}
+                            _ => {}
+                        };
                     }
                     _ => {}
                 },
