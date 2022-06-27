@@ -153,6 +153,12 @@ fn main() {
 
                         voice_manager.write().unwrap().note_off(frequency);
                     }
+                    MidiMessage::Controller { controller, value } => {
+                        println!(
+                            "control change {}, {} on channel {}",
+                            controller, value, channel
+                        );
+                    }
                     _ => {}
                 },
                 _ => {
