@@ -51,7 +51,7 @@ impl eframe::App for SynthUI {
                     .width(1.5);
                 ctx.request_repaint();
                 Plot::new("my_plot")
-                    .view_aspect(2.0)
+                    // .view_aspect(2.0)
                     .include_x(1024.0)
                     .show_axes([false, false])
                     .show_background(false)
