@@ -5,6 +5,7 @@ edition = "2021"
 
 [features]
 gui = [ "eframe" ]
+default = [ "gui" ]
 
 [dependencies]
 midir = "0.8.0"
@@ -18,4 +19,5 @@ default-features=false
 version = "0.5.2"
 default-features=false
 features = [ "std" ]
+
 
