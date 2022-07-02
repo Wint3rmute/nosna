@@ -9,7 +9,7 @@ impl SynthConfiguration {
             sample_rate: 44100,
             operators_configuration: vec![
                 OperatorConfiguration::new(1.0),
-                // OperatorConfiguration::new(0.5),
+                OperatorConfiguration::new(1.0),
             ],
         }
     }
@@ -38,7 +38,7 @@ impl OperatorConfiguration {
             sustain: 0.0,
             release: 0.0,
 
-            strength: 0.0,
+            strength: 1.0,
             velocity_sensitivity: 1.0,
             frequency_multiplier,
         };
@@ -46,24 +46,24 @@ impl OperatorConfiguration {
         configuration.set_attack(0.01);
         configuration.set_decay(0.5);
         configuration.set_sustain(0.9);
-        configuration.set_release(0.1);
+        configuration.set_release(1.0);
 
         configuration
     }
 
-    fn set_attack(&mut self, attack: f32) {
+    pub fn set_attack(&mut self, attack: f32) {
         self.attack = 1.0 / (attack * self.sample_rate as f32);
     }
 
-    fn set_decay(&mut self, decay: f32) {
+    pub fn set_decay(&mut self, decay: f32) {
         self.decay = 1.0 / (decay * self.sample_rate as f32);
     }
 
-    fn set_sustain(&mut self, sustain: f32) {
+    pub fn set_sustain(&mut self, sustain: f32) {
         self.sustain = sustain; //= 1.0 / (sustain * self.sample_rate as f32);
     }
 
-    fn set_release(&mut self, release: f32) {
+    pub fn set_release(&mut self, release: f32) {
         self.release = 1.0 / (release * self.sample_rate as f32);
     }
 }

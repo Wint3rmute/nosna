@@ -55,7 +55,7 @@ impl VoiceManager {
     fn tick(&mut self, configuration: &SynthConfiguration) -> f32 {
         self.voices
             .iter_mut()
-            .map(|voice| voice.tick(configuration.operators_configuration.as_slice()) * 0.3)
+            .map(|voice| voice.tick(configuration.operators_configuration.as_slice()) * 0.2)
             .sum()
     }
 }
@@ -131,11 +131,13 @@ fn main() {
     let _conn_in = midi_in.connect(
         &in_port,
         "midir-read-input",
-        move |stamp, message, _| {
-            println!("{}: {:?} (len = {})", stamp, message, message.len());
-            let frequency = 440.0 * (2.0_f32).powf((message[1] as f32 - 69.0) as f32 / 12.0);
+        move |stamp, raw_message, _| {
+            let frequency = 440.0 * (2.0_f32).powf((raw_message[1] as f32 - 69.0) as f32 / 12.0);
 
-            let event = LiveEvent::parse(message).unwrap();
+            let event = LiveEvent::parse(raw_message).unwrap();
+
+            let mut configuration = configuration.write().unwrap();
+
             match event {
                 LiveEvent::Midi { channel, message } => match message {
                     MidiMessage::NoteOn { key, vel } => {
@@ -158,16 +160,37 @@ fn main() {
                             "control change {}, {} on channel {}",
                             controller, value, channel
                         );
+
+                        let controller = controller.as_int();
+
+                        match controller {
+                            1 => {
+                                configuration.operators_configuration[1]
+                                    .set_attack(value.as_int() as f32 / 10.0);
+                            }
+                            73 => {
+                                configuration.operators_configuration[0]
+                                    .set_attack(value.as_int() as f32 / 100.0);
+                            }
+                            75 => {
+                                configuration.operators_configuration[1].frequency_multiplier =
+                                    value.as_int() as f32 / 10.0;
+                            }
+                            79 => {
+                                configuration.operators_configuration[1].strength =
+                                    value.as_int() as f32 / 100.0;
+                            }
+
+                            _ => {}
+                        }
                     }
-                    _ => {}
+                    _ => {
+                        println!("{}: {:?} (len = {})", stamp, raw_message, raw_message.len());
+                    }
                 },
                 _ => {
                     println!("No idea what this is")
                 }
-            }
-
-            if message[2] == 0 {
-                return;
             }
         },
         // callback,

@@ -36,6 +36,9 @@ impl Operator {
             self.phase -= std::f32::consts::PI * 2.0;
         }
 
-        (self.phase + modulation).sin() * self.adsr.tick(configuration, note_on) * key_velocity
+        (self.phase + modulation).sin()
+            * self.adsr.tick(configuration, note_on)
+            * key_velocity
+            * configuration.strength
     }
 }

@@ -17,7 +17,7 @@ impl Voice {
             phase_increment: 0.0,
             key_velocity: 0.0,
             note_on: false,
-            operators: vec![Operator::new()],
+            operators: vec![Operator::new(), Operator::new()],
         };
         v.set_frequency(440.0);
 
@@ -43,17 +43,20 @@ impl Voice {
     }
 
     pub fn tick(&mut self, configurations: &[OperatorConfiguration]) -> f32 {
-        let mut result = 0.0;
-        for (operator, configuration) in self.operators.iter_mut().zip(configurations) {
-            result += operator.tick(
-                0.0,
-                configuration,
-                self.phase_increment,
-                self.key_velocity,
-                self.note_on,
-            );
-        }
+        let modulation = self.operators[1].tick(
+            0.0,
+            &configurations[1],
+            self.phase_increment,
+            self.key_velocity,
+            self.note_on,
+        );
 
-        result
+        self.operators[0].tick(
+            modulation,
+            &configurations[0],
+            self.phase_increment,
+            self.key_velocity,
+            self.note_on,
+        )
     }
 }
