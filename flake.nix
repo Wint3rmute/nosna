@@ -38,6 +38,7 @@
             pkgs.rustfmt
             pkgs.rust-analyzer
             pkgs.clippy
+            # pkgs.rustdoc
           ];
           LD_LIBRARY_PATH = libPath;
           postInstall = ''

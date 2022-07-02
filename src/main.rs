@@ -1,4 +1,5 @@
 use midly::{live::LiveEvent, MidiMessage};
+use reverb::Reverb;
 use rodio::source::Source;
 use rodio::{OutputStream, Sink};
 use std::io;
@@ -63,6 +64,7 @@ impl VoiceManager {
 struct Synth {
     voice_manager: SharedVoiceManager,
     configuration: SharedSynthConfiguration,
+    reverb: Reverb,
     samples: Samples,
     sample_index: usize,
 }
@@ -80,6 +82,9 @@ impl Iterator for Synth {
             .write()
             .unwrap()
             .tick(synth_configuration);
+
+        // self.reverb.update(result);
+        result += self.reverb.calc_sample(result, 1.1);
 
         let mut samples = self.samples.write().unwrap();
         samples[self.sample_index] = result;
@@ -117,9 +122,13 @@ fn main() {
 
     let configuration = Arc::new(RwLock::new(SynthConfiguration::new()));
     let voice_manager = Arc::new(RwLock::new(VoiceManager::new()));
+    let mut reverb = Reverb::new();
+    reverb.decay(1.0);
+
     let source = Synth {
         voice_manager: voice_manager.clone(),
         configuration: configuration.clone(),
+        reverb: reverb,
         samples: samples.clone(),
         sample_index: 0,
     };

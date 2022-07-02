@@ -1078,6 +1078,7 @@ dependencies = [
  "eframe",
  "midir",
  "midly",
+ "reverb",
  "rodio",
 ]
 
@@ -1330,6 +1331,12 @@ name = "regex-syntax"
 version = "0.6.26"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "49b3de9ec5dc0a3417da371aab17d729997c15010e7fd24ff707773a33bddb64"
+
+[[package]]
+name = "reverb"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6659fc12a86bf9356dabdf559dc462653f76af2e5322dae7e6b293586a36939a"
 
 [[package]]
 name = "rodio"
