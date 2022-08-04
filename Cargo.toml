@@ -4,8 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [features]
-gui = [ "eframe" ]
-default = [ "gui" ]
+gui = [ "macroquad" ]
 
 [dependencies]
 midir = "0.8.0"
@@ -21,4 +20,8 @@ version = "0.5.2"
 default-features=false
 features = [ "std" ]
 
+[dependencies.macroquad]
+version = "0.3.23"
+default-features=false
+optional=true
 

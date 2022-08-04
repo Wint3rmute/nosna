@@ -12,6 +12,8 @@ mod configuration;
 mod midi_input;
 mod operator;
 #[cfg(feature = "gui")]
+use macroquad::Window;
+#[cfg(feature = "gui")]
 mod oscilloscope;
 mod voice;
 
@@ -115,6 +117,7 @@ impl Source for Synth {
     }
 }
 
+// #[macroquad::main("BasicShapes")]
 fn main() {
     let (_stream, stream_handle) = OutputStream::try_default().unwrap();
     let sink = Sink::try_new(&stream_handle).unwrap();
@@ -209,7 +212,7 @@ fn main() {
     let voice_manager = vm;
 
     #[cfg(feature = "gui")]
-    oscilloscope::run_synth_ui(voice_manager.clone(), samples.clone());
+    Window::new("Nosna Synth", oscilloscope::ui_loop(samples.clone()));
 
     loop {
         let mut input = String::new();
