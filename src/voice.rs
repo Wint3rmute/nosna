@@ -1,7 +1,7 @@
+use crate::constants;
 use crate::{configuration::OperatorConfiguration, operator::Operator};
 
 pub struct Voice {
-    pub sample_rate: usize,
     pub base_frequency: f32,
     pub phase_increment: f32,
     pub key_velocity: f32,
@@ -12,7 +12,6 @@ pub struct Voice {
 impl Voice {
     pub fn new() -> Self {
         let mut v = Self {
-            sample_rate: 44100,
             base_frequency: 440.0,
             phase_increment: 0.0,
             key_velocity: 0.0,
@@ -39,7 +38,8 @@ impl Voice {
 
     pub fn set_frequency(&mut self, frequency: f32) {
         self.base_frequency = frequency;
-        self.phase_increment = (2.0 * std::f32::consts::PI * frequency) / self.sample_rate as f32;
+        self.phase_increment =
+            (2.0 * std::f32::consts::PI * frequency) / constants::SAMPLE_RATE as f32;
     }
 
     pub fn tick(&mut self, configurations: &[OperatorConfiguration]) -> f32 {

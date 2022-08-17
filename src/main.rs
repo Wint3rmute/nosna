@@ -9,6 +9,7 @@ use std::time::Duration;
 
 mod adsr;
 mod configuration;
+mod constants;
 mod midi_input;
 mod operator;
 #[cfg(feature = "gui")]
