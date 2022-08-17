@@ -86,7 +86,6 @@ impl Iterator for Synth {
             .unwrap()
             .tick(synth_configuration);
 
-        // self.reverb.update(result);
         result += self.reverb.calc_sample(result, 1.1);
 
         let mut samples = self.samples.write().unwrap();
