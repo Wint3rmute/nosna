@@ -7,11 +7,7 @@ env:
 
 jobs:
   build:
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v2
@@ -23,6 +19,7 @@ jobs:
           cargo test
       - name: Clippy
         run: |
+          sudo apt install libasound2-dev
           rustup component add clippy
           cargo clippy --all-targets
   check-macos-arm:
