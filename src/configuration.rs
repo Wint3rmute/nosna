@@ -10,6 +10,7 @@ impl SynthConfiguration {
             operators_configuration: vec![
                 OperatorConfiguration::new(1.0),
                 OperatorConfiguration::new(1.0),
+                OperatorConfiguration::new(1.0),
             ],
         }
     }

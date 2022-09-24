@@ -193,6 +193,15 @@ fn main() {
                                     value.as_int() as f32 / 10.0;
                             }
 
+                            72 => {
+                                configuration.operators_configuration[2].frequency_multiplier =
+                                    value.as_int() as f32 / 50.0;
+                            }
+                            80 => {
+                                configuration.operators_configuration[2].strength =
+                                    value.as_int() as f32 / 10.0;
+                            }
+
                             74 => {
                                 configuration.operators_configuration[1]
                                     .set_attack(value.as_int() as f32 / 100.0);
