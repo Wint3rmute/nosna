@@ -41,7 +41,7 @@ impl OperatorConfiguration {
 
         configuration.set_attack(0.01);
         configuration.set_decay(2.0);
-        configuration.set_sustain(0.0);
+        configuration.set_sustain(1.0);
         configuration.set_release(1.0);
 
         configuration

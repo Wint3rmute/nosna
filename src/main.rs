@@ -86,7 +86,7 @@ impl Iterator for Synth {
             .unwrap()
             .tick(synth_configuration);
 
-        result += self.reverb.calc_sample(result, 1.1);
+        // result += self.reverb.calc_sample(result, 1.1);
 
         let mut samples = self.samples.write().unwrap();
         samples[self.sample_index] = result;
@@ -186,13 +186,34 @@ fn main() {
                             }
                             75 => {
                                 configuration.operators_configuration[1].frequency_multiplier =
-                                    value.as_int() as f32 / 10.0;
+                                    value.as_int() as f32 / 50.0;
                             }
                             79 => {
                                 configuration.operators_configuration[1].strength =
-                                    value.as_int() as f32 / 100.0;
+                                    value.as_int() as f32 / 10.0;
                             }
 
+                            74 => {
+                                configuration.operators_configuration[1]
+                                    .set_attack(value.as_int() as f32 / 100.0);
+                            }
+
+                            71 => {
+                                configuration.operators_configuration[1]
+                                    .set_sustain(value.as_int() as f32 / 100.0);
+                            }
+
+                            76 => {
+                                configuration.operators_configuration[1]
+                                    .set_decay(value.as_int() as f32 / 100.0);
+                            }
+
+                            77 => {
+                                configuration.operators_configuration[1]
+                                    .set_release(value.as_int() as f32 / 100.0);
+                            }
+
+                            // 77 93 18 19 16
                             _ => {}
                         }
                     }
