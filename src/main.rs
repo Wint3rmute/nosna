@@ -50,7 +50,7 @@ impl VoiceManager {
 
     fn note_off(&mut self, note: f32) {
         for voice in self.voices.iter_mut() {
-            if voice.base_frequency == note {
+            if voice.voice_state.base_frequency == note {
                 voice.note_off()
             }
         }

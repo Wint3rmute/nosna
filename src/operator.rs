@@ -1,8 +1,10 @@
 use crate::adsr;
 use crate::configuration;
+use crate::voice;
 // use crate::adsr;
 use adsr::Adsr;
 use configuration::OperatorConfiguration;
+use voice::VoiceState;
 
 pub struct Operator {
     phase: f32,
@@ -26,19 +28,17 @@ impl Operator {
         &mut self,
         modulation: f32,
         configuration: &OperatorConfiguration,
-        phase_increment: f32,
-        key_velocity: f32,
-        note_on: bool,
+        voice_state: &VoiceState,
     ) -> f32 {
-        self.phase += phase_increment * configuration.frequency_multiplier;
+        self.phase += voice_state.phase_increment * configuration.frequency_multiplier;
 
         if self.phase > std::f32::consts::PI * 2.0 {
             self.phase -= std::f32::consts::PI * 2.0;
         }
 
         (self.phase + modulation).sin()
-            * self.adsr.tick(configuration, note_on)
-            * key_velocity
+            * self.adsr.tick(configuration, voice_state.note_on)
+            * voice_state.key_velocity
             * configuration.strength
     }
 }
