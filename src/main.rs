@@ -12,6 +12,7 @@ mod configuration;
 mod constants;
 mod midi_input;
 mod operator;
+mod synth;
 #[cfg(feature = "gui")]
 use macroquad::Window;
 #[cfg(feature = "gui")]
@@ -73,6 +74,7 @@ struct Synth {
 }
 
 type Samples = Arc<RwLock<Vec<f32>>>;
+
 impl Iterator for Synth {
     type Item = f32;
     fn next(&mut self) -> Option<Self::Item> {
@@ -121,7 +123,7 @@ impl Source for Synth {
 fn main() {
     let (_stream, stream_handle) = OutputStream::try_default().unwrap();
     let sink = Sink::try_new(&stream_handle).unwrap();
-    let samples: Samples = Arc::new(RwLock::new(vec![0.0_f32; 1000]));
+    let samples: Samples = Arc::new(RwLock::new(vec![0.0_f32; 1006]));
 
     let configuration = Arc::new(RwLock::new(SynthConfiguration::new()));
     let voice_manager = Arc::new(RwLock::new(VoiceManager::new()));
@@ -195,7 +197,12 @@ fn main() {
 
                             72 => {
                                 configuration.operators_configuration[2].frequency_multiplier =
-                                    value.as_int() as f32 / 50.0;
+                                    value.as_int() as f32 / 20.0 + 1.0;
+
+                                println!(
+                                    "!!!! {}",
+                                    configuration.operators_configuration[2].frequency_multiplier
+                                );
                             }
                             80 => {
                                 configuration.operators_configuration[2].strength =

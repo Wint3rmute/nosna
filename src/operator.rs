@@ -7,8 +7,8 @@ use configuration::OperatorConfiguration;
 use voice::VoiceState;
 
 pub struct Operator {
-    phase: f32,
-    adsr: Adsr,
+    pub phase: f32,
+    pub adsr: Adsr,
 }
 
 impl Operator {

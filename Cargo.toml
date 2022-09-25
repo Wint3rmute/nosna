@@ -13,7 +13,7 @@ reverb = "1.0.0"
 
 [dependencies.rodio]
 version = "0.15.0"
-default-features=false
+default-features=true
 
 [dependencies.midly]
 version = "0.5.2"
